@@ -1,0 +1,92 @@
+:root {
+  /* Global typography */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Colour palette inspired by natural, preservative‑free kids nutrition */
+  --background-colour: #FDF9F0;
+  --primary-colour: #6AB04C; /* fresh green */
+  --secondary-colour: #FF8A65; /* soft orange */
+  --text-colour: #4E342E; /* warm dark brown */
+  --button-bg: #6AB04C;
+  --button-hover: #558B2F;
+  --link-colour: #FF7043;
+  --link-hover: #E64A19;
+
+  color: var(--text-colour);
+  background-color: var(--background-colour);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: var(--link-colour);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--link-hover);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--button-bg);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+button:hover {
+  background-color: var(--button-hover);
+}
+button:focus,
+button:focus-visible {
+  outline: 2px dashed var(--secondary-colour);
+}
+
+/* Basic table styling for the cart */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+th {
+  background-color: var(--primary-colour);
+  color: white;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
