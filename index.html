@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #e0e0e0;
+      cursor: pointer;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      flex: 1 1 auto;
+      text-align: center;
+    }
+    .tab-button.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-group button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    .form-group button:hover {
+      background-color: #45a049;
+    }
+
+    /* Two-column layout for New SKU form */
+    #newProductForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    #newProductForm .form-group {
+      flex: 1 1 45%;
+      min-width: 250px;
+    }
+    /* Dual list styles */
+    .dual-list {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dual-list-box {
+      flex: 1;
+      height: 100px;
+    }
+    .dual-list-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+    .modal-content h3 {
+      margin-top: 0;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    /* Reference data navigation */
+    .ref-nav {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .ref-button {
+      padding: 8px 16px;
+      border: none;
+      background-color: #e0e0e0;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .ref-button.active {
+      background-color: #2196F3;
+      color: white;
+    }
+    .ref-content {
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    table button {
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    table button.remove {
+      background-color: #f44336;
+      color: white;
+    }
+    table button.remove:hover {
+      background-color: #d32f2f;
+    }
+    table button.delete {
+      background-color: #f44336;
+      color: white;
+    }
+    table button.delete:hover {
+      background-color: #d32f2f;
+    }
+    /* Style for Create Template button to align with other buttons */
+    #skuTemplates #createTemplateBtn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #skuTemplates #createTemplateBtn:hover {
+      background-color: #45a049;
+    }
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .message.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    .message.error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Product Management</h1>
+    <div class="tabs">
+      <button class="tab-button active" data-tab="newProduct">New SKU</button>
+      <button class="tab-button" data-tab="referenceData">Reference Data</button>
+      <button class="tab-button" data-tab="productMaster">SKU Master</button>
+      <button class="tab-button" data-tab="skuTemplates">SKU Templates</button>
+    </div>
+      <div id="newProduct" class="tab-content active">
+      <h2>New SKU</h2>
+      <form id="newProductForm" onsubmit="event.preventDefault(); addNewProduct();">
+        <div class="form-group">
+          <label for="npBrand">Brand</label>
+          <select id="npBrand" required></select>
+        </div>
+        <div class="form-group">
+          <label for="npProduct">Product</label>
+          <select id="npProduct" required></select>
+        </div>
+        <div class="form-group">
+          <label for="npCategory">Category</label>
+          <select id="npCategory" required></select>
+        </div>
+        <!-- SKU Template selection moved up; after brand, category, and product -->
+        <div class="form-group">
+          <label for="npSkuTemplate">SKU Template</label>
+          <select id="npSkuTemplate" required>
+            <!-- Options populated via JavaScript -->
+          </select>
+        </div>
+        <!-- Dynamic fields: these will be shown or hidden based on the selected SKU template -->
+        <!-- Variant selection with dual list -->
+        <div class="form-group dynamic-field" data-type="variant">
+          <label>Variant</label>
+          <div class="dual-list">
+            <select id="variantAvailable" multiple class="dual-list-box"></select>
+            <div class="dual-list-buttons">
+              <button type="button" id="addVariantBtn">&gt;&gt;</button>
+              <button type="button" id="removeVariantBtn">&lt;&lt;</button>
+            </div>
+            <select id="variantSelected" multiple class="dual-list-box"></select>
+          </div>
+        </div>
+        <!-- Size selection with dual list -->
+        <div class="form-group dynamic-field" data-type="size">
+          <label>Size</label>
+          <div class="dual-list">
+            <select id="sizeAvailable" multiple class="dual-list-box"></select>
+            <div class="dual-list-buttons">
+              <button type="button" id="addSizeBtn">&gt;&gt;</button>
+              <button type="button" id="removeSizeBtn">&lt;&lt;</button>
+            </div>
+            <select id="sizeSelected" multiple class="dual-list-box"></select>
+          </div>
+        </div>
+        <!-- Customer group selection with dual list -->
+        <div class="form-group dynamic-field" data-type="customer">
+          <label>Customer Group</label>
+          <div class="dual-list">
+            <select id="customerAvailable" multiple class="dual-list-box"></select>
+            <div class="dual-list-buttons">
+              <button type="button" id="addCustomerBtn">&gt;&gt;</button>
+              <button type="button" id="removeCustomerBtn">&lt;&lt;</button>
+            </div>
+            <select id="customerSelected" multiple class="dual-list-box"></select>
+          </div>
+        </div>
+        <!-- Minimum age selection -->
+        <div class="form-group dynamic-field" data-type="age">
+          <label for="npMinAge">Minimum Age</label>
+          <!-- Age group comes from reference data -->
+          <select id="npMinAge"></select>
+        </div>
+        <!-- Location selection with dual list -->
+        <div class="form-group dynamic-field" data-type="location">
+          <label>Location</label>
+          <div class="dual-list">
+            <select id="locationAvailable" multiple class="dual-list-box"></select>
+            <div class="dual-list-buttons">
+              <button type="button" id="addLocationBtn">&gt;&gt;</button>
+              <button type="button" id="removeLocationBtn">&lt;&lt;</button>
+            </div>
+            <select id="locationSelected" multiple class="dual-list-box"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <button type="submit">Add SKU</button>
+        </div>
+      </form>
+      <div id="newProductMessage" class="message" style="display:none;"></div>
+    </div>
+    <div id="referenceData" class="tab-content">
+      <h2>Reference Data Management</h2>
+      <!-- Add table form -->
+      <div class="form-group" id="addTableForm">
+        <input type="text" id="newTableName" placeholder="Enter new table name" style="margin-right:5px;" />
+        <button type="button" id="addTableBtn">Add Table</button>
+      </div>
+      <!-- Navigation for reference tables -->
+      <div class="ref-nav" id="refNav"></div>
+      <!-- Content area for selected reference table -->
+      <div id="refContent" class="ref-content"></div>
+      <!-- Combination generator -->
+      <div id="combinationGenerator" class="ref-content" style="margin-top:20px;"></div>
+    </div>
+    <div id="productMaster" class="tab-content">
+      <h2>SKU Master</h2>
+      <table id="productMasterTable">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Variant</th>
+            <th>Size</th>
+            <th>Customer</th>
+            <th>Min Age</th>
+            <th>Location</th>
+            <th>SKU Template</th>
+            <th>SKU</th>
+            <th>UPC/EAN</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- SKU Templates Tab -->
+    <div id="skuTemplates" class="tab-content">
+      <h2>SKU Templates</h2>
+      <div id="templateList"></div>
+      <div style="margin-top:10px;">
+        <button type="button" id="createTemplateBtn">Create Template</button>
+      </div>
+      <!-- Template creation form (always visible) -->
+      <div id="templateForm" style="margin-top:20px; display:none;">
+        <h3>Create SKU Template</h3>
+        <div class="form-group">
+          <label for="templateName">Template Name</label>
+          <input type="text" id="templateName" placeholder="Enter template name" />
+        </div>
+        <!-- Updated UI for selecting reference tables -->
+        <div class="form-group">
+          <label for="templateTablesSelect">Select reference table</label>
+          <select id="templateTablesSelect" style="width:100%;"></select>
+        </div>
+        <!-- Container to show selected tables as chips with remove buttons -->
+        <div class="form-group">
+          <div id="selectedTablesContainer" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+        </div>
+        <!-- Button to create combination table from selected types (hidden by default) -->
+        <div class="form-group" id="createCombinationContainer" style="display:none;">
+          <button type="button" id="createCombinationFromTemplateBtn" style="background-color:#2196F3; color:white; border:none; border-radius:4px; padding:8px 16px; cursor:pointer;">Create Combination Table</button>
+        </div>
+        <div class="form-group">
+          <button type="button" id="generateTemplateBtn">Generate Sample</button>
+        </div>
+        <div id="templateResult" class="form-group"></div>
+        <div class="form-group" id="saveTemplateContainer" style="display:none;">
+          <button type="button" id="saveTemplateBtn">Save Template</button>
+        </div>
+      </div>
+    </div>
+    <!-- Modal for viewing template details -->
+    <div id="templateModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span id="templateModalClose" class="close">&times;</span>
+        <div id="templateModalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data arrays
+    let brands = [];
+    let products = [];
+    let categories = [];
+    let variants = [];
+    let customers = [];
+    let ages = [];
+    let locations = [];
+    // Sizes reference table (e.g. Small, Medium, Large)
+    let sizes = [];
+    let productMaster = [];
+    // SKU templates
+    let skuTemplates = [];
+    // Selected tables for current template being created
+    let selectedTemplateTables = [];
+    // Custom reference tables (dynamically added by user)
+    let customTables = {};
+
+    // Settings for each table's abbreviation (max length and format)
+    // Stored as { typeName: { maxLength: number, format: 'AlphaNumeric'|'Letters'|'Numeric' } }
+    let tableSettings = {};
+
+    // Variables to hold last generated combinations and selected types
+    let lastGeneratedCombinations = [];
+    let lastSelectedTypes = [];
+
+    // Helper function to get the underlying base types for a selection (handles combination tables)
+    function getSelectionTypes(value) {
+      if (!value) return [];
+      if (value.startsWith('custom:')) {
+        const tableName = value.substring('custom:'.length);
+        const tableVal = customTables[tableName];
+        if (tableVal && tableVal.types) {
+          // combination table
+          return tableVal.types.slice();
+        }
+        // simple custom table
+        return [value];
+      }
+      return [value];
+    }
+
+    // Check if a table value can be added to selectedTemplateTables without overlapping
+    function canAddTableToTemplate(value) {
+      const newTypes = getSelectionTypes(value);
+      for (const selected of selectedTemplateTables) {
+        const existingTypes = getSelectionTypes(selected);
+        // disallow if any type overlaps
+        if (newTypes.some(t => existingTypes.includes(t))) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Load data from localStorage
+    function loadData() {
+      try {
+        brands = JSON.parse(localStorage.getItem('sku_brands')) || [];
+        products = JSON.parse(localStorage.getItem('sku_products')) || [];
+        categories = JSON.parse(localStorage.getItem('sku_categories')) || [];
+        variants = JSON.parse(localStorage.getItem('sku_variants')) || [];
+        customers = JSON.parse(localStorage.getItem('sku_customers')) || [];
+        ages = JSON.parse(localStorage.getItem('sku_ages')) || [];
+        locations = JSON.parse(localStorage.getItem('sku_locations')) || [];
+        sizes = JSON.parse(localStorage.getItem('sku_sizes')) || [];
+        customTables = JSON.parse(localStorage.getItem('sku_customTables')) || {};
+        productMaster = JSON.parse(localStorage.getItem('sku_productMaster')) || [];
+      skuTemplates = JSON.parse(localStorage.getItem('sku_templates')) || [];
+      tableSettings = JSON.parse(localStorage.getItem('sku_tableSettings')) || {};
+      } catch (e) {
+        console.error('Error loading data', e);
+        brands = [];
+        products = [];
+        categories = [];
+        variants = [];
+        customers = [];
+        ages = [];
+        locations = [];
+        sizes = [];
+        productMaster = [];
+      }
+      // Default categories if none exist
+      if (!categories || categories.length === 0) {
+        categories = [
+          { name: 'Immunity Booster Drops', abbr: 'ID' },
+          { name: 'Immunity Booster Jam', abbr: 'IJ' },
+          { name: 'Nutritional Complementary Meal', abbr: 'NM' },
+          { name: 'Nutritional Complementary Drink Mix', abbr: 'ND' }
+        ];
+      }
+      // Default customers if none exist
+      if (!customers || customers.length === 0) {
+        customers = [
+          { name: 'Kids', abbr: 'K' },
+          { name: 'Women', abbr: 'W' },
+          { name: 'Mothers', abbr: 'M' },
+          { name: 'All', abbr: 'A' }
+        ];
+      }
+      // Default ages if none exist
+      if (!ages || ages.length === 0) {
+        ages = [
+          { name: '6 months', abbr: '6M' },
+          { name: '9 months', abbr: '9M' },
+          { name: '1 year', abbr: '1Y' },
+          { name: '2 years', abbr: '2Y' },
+          { name: '5 years', abbr: '5Y' },
+          { name: '10 years and above', abbr: 'AY' }
+        ];
+      }
+      // Default locations if none exist
+      if (!locations || locations.length === 0) {
+        locations = [
+          { name: 'PUNE-IE', abbr: '1' },
+          { name: 'PUNE-PI', abbr: '2' }
+        ];
+      }
+
+      // Default sizes if none exist
+      if (!sizes || sizes.length === 0) {
+        sizes = [
+          { name: 'Small', abbr: 'S' },
+          { name: 'Medium', abbr: 'M' },
+          { name: 'Large', abbr: 'L' }
+        ];
+      }
+    }
+
+    // Save data to localStorage
+    function saveData() {
+      localStorage.setItem('sku_brands', JSON.stringify(brands));
+      localStorage.setItem('sku_products', JSON.stringify(products));
+      localStorage.setItem('sku_categories', JSON.stringify(categories));
+      localStorage.setItem('sku_variants', JSON.stringify(variants));
+      localStorage.setItem('sku_customers', JSON.stringify(customers));
+      localStorage.setItem('sku_ages', JSON.stringify(ages));
+      localStorage.setItem('sku_locations', JSON.stringify(locations));
+      localStorage.setItem('sku_sizes', JSON.stringify(sizes));
+      localStorage.setItem('sku_productMaster', JSON.stringify(productMaster));
+      localStorage.setItem('sku_customTables', JSON.stringify(customTables));
+      localStorage.setItem('sku_templates', JSON.stringify(skuTemplates));
+      localStorage.setItem('sku_tableSettings', JSON.stringify(tableSettings));
+    }
+
+    // Generate unique abbreviation for brand
+    function createBrandAbbr(name) {
+      const base = name.trim().charAt(0).toUpperCase();
+      let abbr = base;
+      let counter = 1;
+      while (brands.some(b => b.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      // Apply table settings if any
+      return applyTableSettings(abbr, 'brand', brands);
+    }
+
+    // Generate unique abbreviation for product
+    function createProductAbbr(name) {
+      const vowels = ['a','e','i','o','u'];
+      let consonants = '';
+      for (const char of name.toLowerCase()) {
+        if (/[a-z]/.test(char) && !vowels.includes(char)) {
+          consonants += char.toUpperCase();
+          if (consonants.length === 2) break;
+        }
+      }
+      let base = consonants.padEnd(2, 'X');
+      let abbr = base;
+      let counter = 1;
+      while (products.some(p => p.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      // Apply table settings
+      return applyTableSettings(abbr, 'product', products);
+    }
+
+    // Generate unique abbreviation for category (for new entries)
+    function createCategoryAbbr(name) {
+      const words = name.trim().split(/\s+/);
+      let base;
+      if (words.length === 1) {
+        base = words[0].substring(0,2).toUpperCase();
+      } else {
+        base = words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+      }
+      let abbr = base;
+      let counter = 1;
+      while (categories.some(c => c.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      return applyTableSettings(abbr, 'category', categories);
+    }
+
+    // Generate unique abbreviation for variant using variant rules
+    function createVariantAbbr(name) {
+      if (!name) return '';
+      const words = name.trim().split(/\s+/);
+      let base;
+      if (words.length === 1) {
+        // single word: first letter + first consonant after first letter
+        const word = words[0];
+        const firstLetter = word.charAt(0).toUpperCase();
+        let consonant = '';
+        const vowels = ['a','e','i','o','u'];
+        for (let i = 1; i < word.length; i++) {
+          const ch = word[i].toLowerCase();
+          if (/[a-z]/.test(ch) && !vowels.includes(ch)) {
+            consonant = word[i].toUpperCase();
+            break;
+          }
+        }
+        base = firstLetter + (consonant || 'X');
+      } else if (words.length === 2) {
+        base = words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+      } else {
+        base = words[0].charAt(0).toUpperCase() + words[words.length - 1].charAt(0).toUpperCase();
+      }
+      let abbr = base;
+      let counter = 1;
+      while (variants.some(v => v.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      return applyTableSettings(abbr, 'variant', variants);
+    }
+
+    // Generate unique abbreviation for customer group (first letter, unique)
+    function createCustomerAbbr(name) {
+      if (!name) return '';
+      const base = name.trim().charAt(0).toUpperCase();
+      let abbr = base;
+      let counter = 1;
+      while (customers.some(c => c.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      return applyTableSettings(abbr, 'customer', customers);
+    }
+
+    // Generate unique abbreviation for age group
+    function createAgeAbbr(name) {
+      if (!name) return '';
+      let base;
+      // parse number and unit (months or years)
+      const numMatch = name.match(/(\d+)/);
+      const monthsMatch = /month/i.test(name);
+      const yearsMatch = /year/i.test(name);
+      if (numMatch) {
+        const num = parseInt(numMatch[1]);
+        if (yearsMatch && num >= 10) {
+          base = 'AY';
+        } else if (monthsMatch) {
+          base = num + 'M';
+        } else if (yearsMatch) {
+          base = num + 'Y';
+        } else {
+          base = num + 'X';
+        }
+      } else if (/above|and above/i.test(name)) {
+        base = 'AY';
+      } else {
+        base = name.trim().substring(0,2).toUpperCase();
+      }
+      let abbr = base;
+      let counter = 1;
+      while (ages.some(a => a.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      return applyTableSettings(abbr, 'age', ages);
+    }
+
+    // Generate unique abbreviation for location (assign next available numeric)
+    function createLocationAbbr(name) {
+      // If name starts with a number, use it if unique
+      const numMatch = name.match(/^(\d+)/);
+      if (numMatch) {
+        const num = numMatch[1];
+        if (!locations.some(l => l.abbr === num)) {
+          return num;
+        }
+      }
+      // Otherwise assign next integer starting from 1
+      let counter = 1;
+      while (locations.some(l => l.abbr === counter.toString())) {
+        counter++;
+      }
+      const result = counter.toString();
+      return applyTableSettings(result, 'location', locations);
+    }
+
+    // Generate unique abbreviation for size (similar to variant rules)
+    function createSizeAbbr(name) {
+      if (!name) return '';
+      const words = name.trim().split(/\s+/);
+      let base;
+      if (words.length === 1) {
+        // single word: first letter + first consonant after first letter
+        const word = words[0];
+        const firstLetter = word.charAt(0).toUpperCase();
+        let consonant = '';
+        const vowels = ['a','e','i','o','u'];
+        for (let i = 1; i < word.length; i++) {
+          const ch = word[i].toLowerCase();
+          if (/[a-z]/.test(ch) && !vowels.includes(ch)) {
+            consonant = word[i].toUpperCase();
+            break;
+          }
+        }
+        base = firstLetter + (consonant || 'X');
+      } else if (words.length === 2) {
+        base = words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+      } else {
+        base = words[0].charAt(0).toUpperCase() + words[words.length - 1].charAt(0).toUpperCase();
+      }
+      let abbr = base;
+      let counter2 = 1;
+      while (sizes.some(s => s.abbr === abbr)) {
+        abbr = base + counter2;
+        counter2++;
+      }
+      return applyTableSettings(abbr, 'size', sizes);
+    }
+
+    // Generate a combination code with optional settings
+    // fullAbbr: concatenated abbreviation string (e.g., IDCHCH)
+    // index: index of combination for fallback numbers
+    // usedCodes: Set to ensure uniqueness within current batch
+    // maxLength: optional maximum length of code (defaults to 3)
+    // format: optional format ('AlphaNumeric','Letters','Numeric')
+    function generateCombinationCodeWithOptions(fullAbbr, index, usedCodes, maxLength, format) {
+      let letters = fullAbbr.replace(/[^A-Za-z]/g, '').toUpperCase();
+      let digits = fullAbbr.replace(/[^0-9]/g, '');
+      // Defaults
+      let len = parseInt(maxLength, 10);
+      if (isNaN(len) || len <= 0) len = 3;
+      const fmt = format || 'AlphaNumeric';
+      // Helper to ensure uniqueness by adjusting a numeric suffix
+      function ensureUnique(code) {
+        if (!usedCodes.has(code)) {
+          usedCodes.add(code);
+          return code;
+        }
+        // Attempt to adjust a trailing digit to find uniqueness
+        let base = code;
+        let suffixNum = 0;
+        // If last character is digit, separate base and digit
+        const match = code.match(/^(.*?)(\d)$/);
+        if (match) {
+          base = match[1];
+          suffixNum = parseInt(match[2], 10);
+        }
+        let tries = 0;
+        while (tries < 10) {
+          suffixNum = (suffixNum + 1) % 10;
+          const candidate = base + suffixNum.toString();
+          if (!usedCodes.has(candidate)) {
+            usedCodes.add(candidate);
+            return candidate;
+          }
+          tries++;
+        }
+        // If still not unique, append index and add
+        const fallback = base + (index % 10).toString();
+        usedCodes.add(fallback);
+        return fallback;
+      }
+      let code = '';
+      if (fmt === 'Numeric') {
+        // Numeric only: use digits from fullAbbr; if not enough digits, pad with index
+        let seq = digits;
+        if (seq.length < len) {
+          // append index digits
+          seq += (index % Math.pow(10, len)).toString();
+        }
+        code = seq.substring(0, len);
+        return ensureUnique(code);
+      } else if (fmt === 'Letters') {
+        // Letters only: use letters; pad with 'X'
+        let seq = letters;
+        if (seq.length < len) {
+          seq = seq.padEnd(len, 'X');
+        }
+        code = seq.substring(0, len);
+        return ensureUnique(code);
+      } else {
+        // AlphaNumeric: ensure at least one letter and one digit if possible
+        // We'll build a candidate by selecting first letter and first digit, then fill rest with letters/digits alternating
+        let result = '';
+        // Always include first letter if available
+        if (letters.length > 0) {
+          result += letters.charAt(0);
+        } else {
+          result += 'X';
+        }
+        // Include first digit
+        if (digits.length > 0) {
+          result += digits.charAt(0);
+        } else {
+          result += (index % 10).toString();
+        }
+        // Fill remaining positions
+        let li = 1;
+        let di = 1;
+        while (result.length < len) {
+          // alternate adding letters and digits
+          if (result.length % 2 === 0) {
+            if (letters.length > li) {
+              result += letters.charAt(li);
+              li++;
+            } else {
+              result += 'X';
+            }
+          } else {
+            if (digits.length > di) {
+              result += digits.charAt(di);
+              di++;
+            } else {
+              result += (index % 10).toString();
+            }
+          }
+        }
+        code = result.substring(0, len);
+        return ensureUnique(code);
+      }
+    }
+
+    // Backwards compatibility: generateCombinationCode uses default options (max length 3, AlphaNumeric format)
+    function generateCombinationCode(fullAbbr, index, usedCodes) {
+      return generateCombinationCodeWithOptions(fullAbbr, index, usedCodes, 3, 'AlphaNumeric');
+    }
+
+    // Generate unique abbreviation for custom table entries
+    function createCustomAbbr(name, list) {
+      // Use a generic rule: if single word, take first two letters; if multiple words, take first letters of each of the first two words
+      const words = name.trim().split(/\s+/);
+      let base;
+      if (words.length === 1) {
+        base = words[0].substring(0, 2).toUpperCase();
+        if (base.length < 2) {
+          base = base.padEnd(2, 'X');
+        }
+      } else {
+        base = words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+      }
+      let abbr = base;
+      let counter = 1;
+      // ensure uniqueness within list
+      while (list && list.some(item => item.abbr === abbr)) {
+        abbr = base + counter;
+        counter++;
+      }
+      return abbr;
+    }
+
+    // Helper to apply table settings to an abbreviation
+    function applyTableSettings(abbr, type, list) {
+      const settings = tableSettings[type] || {};
+      let code = abbr;
+      // Enforce format if specified
+      if (settings.format) {
+        const fmt = settings.format;
+        if (fmt === 'Letters') {
+          // Keep only letters
+          code = code.replace(/[^A-Za-z]/g, '').toUpperCase();
+          if (code.length === 0) code = 'X';
+        } else if (fmt === 'Numeric') {
+          // Keep only digits; if none, default to '1'
+          let digits = code.replace(/[^0-9]/g, '');
+          if (digits.length === 0) digits = '1';
+          code = digits;
+        } else if (fmt === 'AlphaNumeric') {
+          // Keep letters and digits
+          let letters = code.replace(/[^A-Za-z]/g, '').toUpperCase();
+          let digits = code.replace(/[^0-9]/g, '');
+          // Ensure at least one letter and one digit
+          if (letters.length === 0) letters = 'X';
+          if (digits.length === 0) digits = '0';
+          code = letters + digits;
+        }
+      }
+      // Truncate to max length if specified
+      if (settings.maxLength && settings.maxLength > 0) {
+        code = code.substring(0, settings.maxLength);
+      }
+      // Ensure uniqueness within list: if list provided, adjust suffix
+      if (Array.isArray(list)) {
+        let uniqueCode = code;
+        let counter = 1;
+        const exists = (val) => list.some(item => item.abbr === val);
+        while (exists(uniqueCode)) {
+          if (settings.format === 'Numeric') {
+            uniqueCode = (parseInt(code, 10) + counter).toString();
+          } else {
+            uniqueCode = code + counter;
+          }
+          counter++;
+        }
+        return uniqueCode;
+      }
+      return code;
+    }
+
+    // Populate selects in New Product form
+    function populateNewProductForm() {
+      const brandSelect = document.getElementById('npBrand');
+      const productSelect = document.getElementById('npProduct');
+      const categorySelect = document.getElementById('npCategory');
+      const variantAvail = document.getElementById('variantAvailable');
+      const variantSel = document.getElementById('variantSelected');
+      const customerAvail = document.getElementById('customerAvailable');
+      const customerSel = document.getElementById('customerSelected');
+      const minAgeSelect = document.getElementById('npMinAge');
+      const sizeAvail = document.getElementById('sizeAvailable');
+      const sizeSel = document.getElementById('sizeSelected');
+      const locationAvail = document.getElementById('locationAvailable');
+      const locationSel = document.getElementById('locationSelected');
+      function fill(select, items, placeholder) {
+        select.innerHTML = '';
+        const def = document.createElement('option');
+        def.value = '';
+        def.disabled = true;
+        def.textContent = placeholder;
+        // For multi-selects, do not set selected on placeholder
+        if (!select.multiple) {
+          def.selected = true;
+        }
+        select.appendChild(def);
+        items.forEach((item, index) => {
+          const opt = document.createElement('option');
+          opt.value = item.abbr;
+          opt.setAttribute('data-index', index);
+          opt.textContent = item.name;
+          select.appendChild(opt);
+        });
+      }
+      function fillDual(availSelect, selSelect, items) {
+        if (!availSelect || !selSelect) return;
+        availSelect.innerHTML = '';
+        selSelect.innerHTML = '';
+        items.forEach((item, index) => {
+          const opt = document.createElement('option');
+          opt.value = item.abbr;
+          opt.setAttribute('data-index', index);
+          opt.textContent = item.name;
+          availSelect.appendChild(opt);
+        });
+      }
+      fill(brandSelect, brands, 'Select brand');
+      fill(productSelect, products, 'Select product');
+      fill(categorySelect, categories, 'Select category');
+      // For dual list fields
+      fillDual(variantAvail, variantSel, variants);
+      fillDual(sizeAvail, sizeSel, sizes);
+      fillDual(customerAvail, customerSel, customers);
+      fillDual(locationAvail, locationSel, locations);
+      fill(minAgeSelect, ages, 'Select minimum age');
+      // Populate SKU template select
+      populateSkuTemplateSelect();
+
+      // Update dynamic field visibility based on selected template
+      updateFieldVisibility();
+    }
+
+    // Populate SKU template select in New Product form
+    function populateSkuTemplateSelect() {
+      const templateSelect = document.getElementById('npSkuTemplate');
+      if (!templateSelect) return;
+      templateSelect.innerHTML = '';
+      // Placeholder option
+      const defOpt = document.createElement('option');
+      defOpt.value = '';
+      defOpt.disabled = true;
+      defOpt.selected = true;
+      defOpt.textContent = 'Select SKU template';
+      templateSelect.appendChild(defOpt);
+      skuTemplates.forEach((tpl, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.textContent = tpl.name;
+        templateSelect.appendChild(opt);
+      });
+    }
+
+    // Update visibility of dynamic fields on New SKU form based on selected SKU template
+    function updateFieldVisibility() {
+      const templateSelect = document.getElementById('npSkuTemplate');
+      const dynamicFields = document.querySelectorAll('#newProductForm .dynamic-field');
+      if (!templateSelect || !dynamicFields) return;
+      // Determine selected template types and expand custom combination types into their base types
+      let types = [];
+      const tplVal = templateSelect.value;
+      if (tplVal) {
+        const tplIndex = parseInt(tplVal, 10);
+        if (!isNaN(tplIndex) && skuTemplates[tplIndex]) {
+          types = skuTemplates[tplIndex].types || [];
+        }
+      }
+      // Compute effective types: base types plus all types contained in custom combination tables
+      const effectiveTypesSet = new Set();
+      types.forEach((t) => {
+        if (t.startsWith('custom:')) {
+          const tableName = t.substring('custom:'.length);
+          const custom = customTables[tableName];
+          if (custom && Array.isArray(custom.types)) {
+            custom.types.forEach(bt => effectiveTypesSet.add(bt));
+          }
+        } else {
+          effectiveTypesSet.add(t);
+        }
+      });
+      // Update visibility for each dynamic field: show if its type is in effective types
+      dynamicFields.forEach(div => {
+        const t = div.getAttribute('data-type');
+        if (!t) return;
+        if (effectiveTypesSet.has(t)) {
+          div.style.display = '';
+        } else {
+          div.style.display = 'none';
+        }
+      });
+    }
+
+    // Show template details in a modal dialog
+    function showTemplateDetails(index) {
+      const modal = document.getElementById('templateModal');
+      const modalBody = document.getElementById('templateModalBody');
+      const closeBtn = document.getElementById('templateModalClose');
+      if (!modal || !modalBody || index < 0 || index >= skuTemplates.length) return;
+      const tpl = skuTemplates[index];
+      // Build template details content
+      let html = '';
+      html += `<h3>SKU Template: ${tpl.name}</h3>`;
+      // Map type to label
+      const typeLabels = {
+        'brand': 'Brand',
+        'product': 'Product',
+        'category': 'Category',
+        'variant': 'Variant',
+        'size': 'Size',
+        'customer': 'Customer Group',
+        'age': 'Age Group',
+        'location': 'Location'
+      };
+      // Expand custom types into base types for display
+      const allTypes = [];
+      tpl.types.forEach(t => {
+        if (t.startsWith('custom:')) {
+          const tableName = t.substring('custom:'.length);
+          const ct = customTables[tableName];
+          if (ct && Array.isArray(ct.types)) {
+            ct.types.forEach(bt => {
+              if (!allTypes.includes(bt)) allTypes.push(bt);
+            });
+          } else {
+            if (!allTypes.includes(t)) allTypes.push(t);
+          }
+        } else {
+          if (!allTypes.includes(t)) allTypes.push(t);
+        }
+      });
+      html += '<p><strong>Reference Tables:</strong> ' + allTypes.map(t => {
+        if (t.startsWith('custom:')) return t.substring('custom:'.length);
+        return typeLabels[t] || t;
+      }).join(', ') + '</p>';
+      // Compute sample SKU and length
+      const sampleInfo = computeTemplateSample(tpl.types || []);
+      html += '<p><strong>Sample SKU:</strong> ' + (sampleInfo.sku || '') + ' (' + (sampleInfo.length || 0) + ' characters)</p>';
+      modalBody.innerHTML = html;
+      modal.style.display = 'flex';
+      // Close handlers
+      closeBtn.onclick = function() {
+        modal.style.display = 'none';
+      };
+      // Clicking outside modal-content closes
+      modal.onclick = function(event) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      };
+      // Escape key closes
+      document.onkeydown = function(e) {
+        if (e.key === 'Escape') {
+          modal.style.display = 'none';
+        }
+      };
+    }
+
+    // Compute variant code from variant string
+    function getVariantCode(variant) {
+      if (!variant) return '';
+      const words = variant.trim().split(/\s+/);
+      if (words.length === 1) {
+        const word = words[0];
+        const firstLetter = word.charAt(0).toUpperCase();
+        let consonant = '';
+        const vowels = ['a','e','i','o','u'];
+        for (let i = 1; i < word.length; i++) {
+          const ch = word[i].toLowerCase();
+          if (/[a-z]/.test(ch) && !vowels.includes(ch)) {
+            consonant = word[i].toUpperCase();
+            break;
+          }
+        }
+        return firstLetter + (consonant || 'X');
+      } else if (words.length === 2) {
+        return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+      } else {
+        return words[0].charAt(0).toUpperCase() + words[words.length - 1].charAt(0).toUpperCase();
+      }
+    }
+
+    // Generate unique SKU, optionally using a template for ordering and selection
+    function generateSkuForProduct(prod, templateTypes) {
+      // If templateTypes not provided, default to all core types
+      const defaultOrder = ['brand', 'product', 'category', 'variant', 'size', 'customer', 'age', 'location'];
+      const typesOrder = Array.isArray(templateTypes) && templateTypes.length > 0 ? templateTypes.slice() : defaultOrder.slice();
+      // Determine if a saved combination table applies within the selected types
+      let comboCode = '';
+      let usedTypes = [];
+      let bestMatchLength = 0;
+      let bestEntry = null;
+      Object.keys(customTables).forEach(tableName => {
+        const tableVal = customTables[tableName];
+        if (tableVal && tableVal.types && tableVal.combos) {
+          const comboTypes = tableVal.types;
+          // Only consider combinations that are a subset of typesOrder
+          if (!comboTypes.every(t => typesOrder.includes(t))) return;
+          // Check availability of product properties for these types
+          const available = comboTypes.every(t => {
+            if (t === 'brand') return !!prod.brandName;
+            if (t === 'product') return !!prod.productName;
+            if (t === 'category') return !!prod.categoryName;
+            if (t === 'variant') return !!prod.variantName;
+            if (t === 'size') return !!prod.sizeName;
+            if (t === 'customer') return !!prod.customerName;
+            if (t === 'age') return !!prod.minAgeName;
+            if (t === 'location') return !!prod.locationName;
+            return false;
+          });
+          if (!available) return;
+          // Build key for product values
+          const keyParts = comboTypes.map(t => {
+            let val = '';
+            if (t === 'brand') val = prod.brandName;
+            else if (t === 'product') val = prod.productName;
+            else if (t === 'category') val = prod.categoryName;
+            else if (t === 'variant') val = prod.variantName;
+            else if (t === 'size') val = prod.sizeName;
+            else if (t === 'customer') val = prod.customerName;
+            else if (t === 'age') val = prod.minAgeName;
+            else if (t === 'location') val = prod.locationName;
+            return t + '=' + val;
+          });
+          const key = keyParts.join('|');
+          const entry = tableVal.combos.find(item => item.key === key);
+          if (entry && comboTypes.length > bestMatchLength) {
+            bestMatchLength = comboTypes.length;
+            bestEntry = entry;
+            usedTypes = comboTypes.slice();
+          }
+        }
+      });
+      if (bestEntry) {
+        comboCode = bestEntry.abbr;
+      }
+      // Build base SKU using abbreviations for each selected type, skipping those used in combination
+      let base = '';
+      if (comboCode) {
+        base += comboCode;
+      }
+      typesOrder.forEach(t => {
+        if (usedTypes.includes(t)) return; // skip types used in combo
+        if (t === 'brand') base += prod.brandAbbr;
+        else if (t === 'product') base += prod.productAbbr;
+        else if (t === 'category') base += prod.categoryAbbr;
+        else if (t === 'variant') base += prod.variantAbbr;
+        else if (t === 'size') base += prod.sizeAbbr;
+        else if (t === 'customer') base += prod.customerAbbr;
+        else if (t === 'age') base += prod.minAgeAbbr;
+        else if (t === 'location') base += prod.locationAbbr;
+        // For custom types, we could append but new product doesn't handle them yet
+      });
+      // Do not pad zeros; use the base as is. SKU length will be determined by selected abbreviations.
+      // Ensure SKU uniqueness by appending numeric suffix if necessary
+      let sku = base;
+      let counter = 1;
+      while (productMaster.some(p => p.sku === sku)) {
+        sku = base + counter;
+        counter++;
+      }
+      return sku;
+    }
+
+    // Generate a random 12-digit UPC/EAN (UPC-A) with check digit
+    function generateUPC() {
+      let digits = '';
+      for (let i = 0; i < 11; i++) {
+        digits += Math.floor(Math.random() * 10).toString();
+      }
+      // Compute check digit: sum odd positions *3 + sum even positions, mod 10
+      let sum = 0;
+      for (let i = 0; i < 11; i++) {
+        const num = parseInt(digits.charAt(i));
+        sum += (i % 2 === 0) ? num * 3 : num;
+      }
+      const mod = sum % 10;
+      const checkDigit = mod === 0 ? 0 : 10 - mod;
+      return digits + checkDigit.toString();
+    }
+
+    // Add new product
+    function addNewProduct() {
+      const brandSel = document.getElementById('npBrand');
+      const productSel = document.getElementById('npProduct');
+      const categorySel = document.getElementById('npCategory');
+      const variantSel = document.getElementById('variantSelected');
+      const sizeSel = document.getElementById('sizeSelected');
+      const customerSel = document.getElementById('customerSelected');
+      const minAgeSel = document.getElementById('npMinAge');
+      const locationSel = document.getElementById('locationSelected');
+      const messageDiv = document.getElementById('newProductMessage');
+
+      // Validate single-value selections (brand, product, category must be selected)
+      if (!brandSel.value || !productSel.value || !categorySel.value) {
+        messageDiv.textContent = 'Please fill all fields.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+        return;
+      }
+      // Gather selected options for dynamic fields
+      const selectedVariants = Array.from(variantSel.options);
+      const selectedSizes = Array.from(sizeSel.options);
+      const selectedCustomers = Array.from(customerSel.options);
+      const selectedLocations = Array.from(locationSel.options);
+
+      // Determine which types are included in the template (variant, size, customer, location, age)
+      // Use effectiveTypes computed above (includes base types of custom combinations)
+      const includeVariant = effectiveTypes && effectiveTypes.includes('variant');
+      const includeSize = effectiveTypes && effectiveTypes.includes('size');
+      const includeCustomer = effectiveTypes && effectiveTypes.includes('customer');
+      const includeLocation = effectiveTypes && effectiveTypes.includes('location');
+      const includeAge = effectiveTypes && effectiveTypes.includes('age');
+
+      // Validate dynamic fields only if included in template
+      if (includeVariant && selectedVariants.length === 0) {
+        messageDiv.textContent = 'Please select at least one variant.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+        return;
+      }
+      if (includeSize && selectedSizes.length === 0) {
+        messageDiv.textContent = 'Please select at least one size.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+        return;
+      }
+      if (includeCustomer && selectedCustomers.length === 0) {
+        messageDiv.textContent = 'Please select at least one customer group.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+        return;
+      }
+      if (includeLocation && selectedLocations.length === 0) {
+        messageDiv.textContent = 'Please select at least one location.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+        return;
+      }
+      // Validate minimum age only if age is included
+      if (includeAge && !minAgeSel.value) {
+        messageDiv.textContent = 'Please select a minimum age.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+        return;
+      }
+      // Get indices for single-value selects
+      const brandIndex = brandSel.options[brandSel.selectedIndex].getAttribute('data-index');
+      const productIndex = productSel.options[productSel.selectedIndex].getAttribute('data-index');
+      const categoryIndex = categorySel.options[categorySel.selectedIndex].getAttribute('data-index');
+      const ageIndex = minAgeSel.options[minAgeSel.selectedIndex].getAttribute('data-index');
+      const brandObj = brands[brandIndex];
+      const productObj = products[productIndex];
+      const categoryObj = categories[categoryIndex];
+      const ageObj = ages[ageIndex];
+      // Determine selected SKU template (required)
+      const templateSel = document.getElementById('npSkuTemplate');
+      let selectedTemplate = null;
+      let templateTypes = null;
+      let templateName = '';
+      if (templateSel) {
+        const tplVal = templateSel.value;
+        if (!tplVal) {
+          messageDiv.textContent = 'Please select an SKU template.';
+          messageDiv.className = 'message error';
+          messageDiv.style.display = 'block';
+          return;
+        }
+        const tplIndex = parseInt(tplVal, 10);
+        if (!isNaN(tplIndex) && skuTemplates[tplIndex]) {
+          selectedTemplate = skuTemplates[tplIndex];
+          templateTypes = selectedTemplate.types;
+          templateName = selectedTemplate.name;
+        }
+      }
+      // Compute effective types: expand custom combination entries into their base types
+      let effectiveTypes = [];
+      if (templateTypes && Array.isArray(templateTypes)) {
+        templateTypes.forEach(t => {
+          if (typeof t === 'string' && t.startsWith('custom:')) {
+            const tableName = t.substring('custom:'.length);
+            const ct = customTables[tableName];
+            if (ct && Array.isArray(ct.types)) {
+              ct.types.forEach(bt => {
+                if (!effectiveTypes.includes(bt)) effectiveTypes.push(bt);
+              });
+            }
+          } else {
+            if (!effectiveTypes.includes(t)) effectiveTypes.push(t);
+          }
+        });
+      }
+      // Prepare arrays of variant, size, customer and location objects. If type not included, use a single placeholder
+      const varObjs = includeVariant ? selectedVariants.map(opt => {
+        const idx = opt.getAttribute('data-index');
+        return variants[idx];
+      }) : [ { name: '', abbr: '' } ];
+      const sizeObjs = includeSize ? selectedSizes.map(opt => {
+        const idx = opt.getAttribute('data-index');
+        return sizes[idx];
+      }) : [ { name: '', abbr: '' } ];
+      const custObjs = includeCustomer ? selectedCustomers.map(opt => {
+        const idx = opt.getAttribute('data-index');
+        return customers[idx];
+      }) : [ { name: '', abbr: '' } ];
+      const locObjs = includeLocation ? selectedLocations.map(opt => {
+        const idx = opt.getAttribute('data-index');
+        return locations[idx];
+      }) : [ { name: '', abbr: '' } ];
+      const createdSKUs = [];
+      // Cross product generation
+      // Iterate over cartesian product of variants, sizes, customers, and locations
+      for (const varObj of varObjs) {
+        for (const sizeObj of sizeObjs) {
+          for (const custObj of custObjs) {
+            for (const locObj of locObjs) {
+              // Build product object for this combination
+              const prod = {
+                brandName: brandObj.name,
+                brandAbbr: brandObj.abbr,
+                productName: productObj.name,
+                productAbbr: productObj.abbr,
+                categoryName: categoryObj.name,
+                categoryAbbr: categoryObj.abbr,
+                variantName: includeVariant ? varObj.name : '',
+                variantAbbr: includeVariant ? varObj.abbr : '',
+                sizeName: includeSize ? sizeObj.name : '',
+                sizeAbbr: includeSize ? sizeObj.abbr : '',
+                customerName: includeCustomer ? custObj.name : '',
+                customerAbbr: includeCustomer ? custObj.abbr : '',
+                minAgeName: includeAge ? ageObj.name : '',
+                minAgeAbbr: includeAge ? ageObj.abbr : '',
+                locationName: includeLocation ? locObj.name : '',
+                locationAbbr: includeLocation ? locObj.abbr : '',
+                sku: '',
+                upc: '',
+                skuTemplateName: templateName
+              };
+              // Check if this combination already exists (avoid duplicates)
+              const exists = productMaster.some(p => {
+                return p.brandName === prod.brandName &&
+                       p.productName === prod.productName &&
+                       p.categoryName === prod.categoryName &&
+                       (p.variantName || p.variant) === prod.variantName &&
+                       (p.sizeName || p.size || '') === prod.sizeName &&
+                       (p.customerName || p.customer) === prod.customerName &&
+                       (p.minAgeName || p.minAge) === prod.minAgeName &&
+                       (p.locationName || p.location) === prod.locationName;
+              });
+              if (exists) {
+                continue;
+              }
+              // Generate SKU
+              prod.sku = generateSkuForProduct(prod, templateTypes);
+              prod.upc = generateUPC();
+              productMaster.push(prod);
+              createdSKUs.push(prod.sku);
+            }
+          }
+        }
+      }
+      // Save if any new products
+      if (createdSKUs.length > 0) {
+        saveData();
+        renderProductMasterTable();
+        messageDiv.textContent = createdSKUs.length + ' SKU(s) created: ' + createdSKUs.join(', ');
+        messageDiv.className = 'message success';
+        messageDiv.style.display = 'block';
+      } else {
+        messageDiv.textContent = 'No new SKUs were created; all selected combinations already exist.';
+        messageDiv.className = 'message error';
+        messageDiv.style.display = 'block';
+      }
+      // Reset selects to default
+      brandSel.selectedIndex = 0;
+      productSel.selectedIndex = 0;
+      categorySel.selectedIndex = 0;
+      minAgeSel.selectedIndex = 0;
+      templateSel.selectedIndex = 0;
+      // Repopulate dual lists to reset
+      populateNewProductForm();
+    }
+
+    // Render reference data content
+    function renderRefContent(type) {
+      const container = document.getElementById('refContent');
+      container.innerHTML = '';
+      // Input and button
+      const formDiv = document.createElement('div');
+      formDiv.classList.add('form-group');
+      const input = document.createElement('input');
+      input.type = 'text';
+      // For custom tables, display only table name without prefix
+      if (type.startsWith('custom:')) {
+        input.placeholder = 'Enter ' + type.substring('custom:'.length) + ' name';
+      } else {
+        input.placeholder = 'Enter ' + type + ' name';
+      }
+      input.id = 'refInput';
+      const addBtn = document.createElement('button');
+      addBtn.textContent = 'Add';
+      addBtn.type = 'button';
+      addBtn.onclick = function() {
+        const name = input.value.trim();
+        if (!name) return;
+        addReferenceValue(type, name);
+        input.value = '';
+      };
+      formDiv.appendChild(input);
+      formDiv.appendChild(addBtn);
+      container.appendChild(formDiv);
+      // Settings for abbreviation: allow user to define max length and format (only for non-combination tables)
+      if (!type.startsWith('custom:') || (customTables[type.substring('custom:'.length)] && Array.isArray(customTables[type.substring('custom:'.length)]))) {
+        // Only show settings for default tables and simple custom tables. Combination tables cannot have individual settings.
+        const settingsDiv = document.createElement('div');
+        settingsDiv.classList.add('form-group');
+        // Retrieve current settings if any
+        const settings = tableSettings[type] || {};
+        const maxVal = settings.maxLength || '';
+        const fmtVal = settings.format || 'AlphaNumeric';
+        // Max length input
+        const lblMax = document.createElement('label');
+        lblMax.textContent = 'Max abbreviation length (optional)';
+        lblMax.style.marginRight = '5px';
+        const inpMax = document.createElement('input');
+        inpMax.type = 'number';
+        inpMax.min = '1';
+        inpMax.style.width = '80px';
+        inpMax.value = maxVal;
+        inpMax.id = 'abbrMax_' + type;
+        // Format select
+        const lblFmt = document.createElement('label');
+        lblFmt.textContent = 'Format';
+        lblFmt.style.marginLeft = '10px';
+        lblFmt.style.marginRight = '5px';
+        const selFmt = document.createElement('select');
+        selFmt.id = 'abbrFmt_' + type;
+        ['AlphaNumeric','Letters','Numeric'].forEach(optVal => {
+          const opt = document.createElement('option');
+          opt.value = optVal;
+          opt.textContent = optVal;
+          if (fmtVal === optVal) opt.selected = true;
+          selFmt.appendChild(opt);
+        });
+        // Save settings button
+        const saveBtn = document.createElement('button');
+        saveBtn.type = 'button';
+        saveBtn.textContent = 'Save Abbreviation Settings';
+        saveBtn.style.marginLeft = '10px';
+        saveBtn.onclick = function() {
+          const mVal = parseInt(inpMax.value, 10);
+          const fmt = selFmt.value;
+          if (!isNaN(mVal) && mVal > 0) {
+            if (!tableSettings[type]) tableSettings[type] = {};
+            tableSettings[type].maxLength = mVal;
+          } else {
+            if (!tableSettings[type]) tableSettings[type] = {};
+            delete tableSettings[type].maxLength;
+          }
+          if (fmt) {
+            if (!tableSettings[type]) tableSettings[type] = {};
+            tableSettings[type].format = fmt;
+          }
+          saveData();
+          alert('Abbreviation settings saved. New entries will respect these settings.');
+        };
+        settingsDiv.appendChild(lblMax);
+        settingsDiv.appendChild(inpMax);
+        settingsDiv.appendChild(lblFmt);
+        settingsDiv.appendChild(selFmt);
+        settingsDiv.appendChild(saveBtn);
+        container.appendChild(settingsDiv);
+      }
+
+      // Table
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      let headerRowHTML = '<tr>';
+      // For combination tables, dynamic header based on types
+      if (type.startsWith('custom:')) {
+        const tableName = type.substring('custom:'.length);
+        const tableVal = customTables[tableName];
+        if (tableVal && tableVal.combos) {
+          // Add a header cell for each type name
+          tableVal.types.forEach(t => {
+            const label = t.startsWith('custom:') ? t.substring('custom:'.length) : t;
+            headerRowHTML += '<th>' + label + '</th>';
+          });
+          headerRowHTML += '<th>Abbreviation</th><th>Action</th></tr>';
+          thead.innerHTML = headerRowHTML;
+        } else {
+          // treat like normal if not combination
+          headerRowHTML = '<tr><th>Name</th><th>Abbreviation</th><th>Action</th></tr>';
+          thead.innerHTML = headerRowHTML;
+        }
+      } else {
+        headerRowHTML = '<tr><th>Name</th><th>Abbreviation</th><th>Action</th></tr>';
+        thead.innerHTML = headerRowHTML;
+      }
+      const tbody = document.createElement('tbody');
+      let list = [];
+      if (type.startsWith('custom:')) {
+        const tableName = type.substring('custom:'.length);
+        const tableVal = customTables[tableName];
+        if (Array.isArray(tableVal)) {
+          list = tableVal;
+        } else if (tableVal && tableVal.combos) {
+          // For combination tables, we will build rows differently
+          list = tableVal.combos;
+        } else {
+          list = [];
+        }
+      } else if (type === 'brand') list = brands;
+      else if (type === 'product') list = products;
+      else if (type === 'category') list = categories;
+      else if (type === 'variant') list = variants;
+      else if (type === 'size') list = sizes;
+      else if (type === 'customer') list = customers;
+      else if (type === 'age') list = ages;
+      else if (type === 'location') list = locations;
+      list.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        // For combination tables (object with combos), display differently
+        if (type.startsWith('custom:')) {
+          const tableName = type.substring('custom:'.length);
+          const tableVal = customTables[tableName];
+          if (tableVal && tableVal.combos) {
+            // tableVal.types defines the order of types
+            // Build cells for each type name
+            tableVal.types.forEach(t => {
+              const td = document.createElement('td');
+              td.textContent = item.names[t] || '';
+              tr.appendChild(td);
+            });
+            // Abbreviation cell
+            const tdAb = document.createElement('td');
+            tdAb.textContent = item.abbr;
+            tr.appendChild(tdAb);
+            // Action cell
+            const tdAct = document.createElement('td');
+            const btn = document.createElement('button');
+            btn.textContent = 'Remove';
+            btn.classList.add('remove');
+            btn.type = 'button';
+            btn.onclick = function() {
+              removeRefValue(type, idx);
+            };
+            tdAct.appendChild(btn);
+            tr.appendChild(tdAct);
+            tbody.appendChild(tr);
+            return;
+          }
+        }
+        // Default/simple table row
+        const tdName = document.createElement('td');
+        tdName.textContent = item.name;
+        const tdAbbr = document.createElement('td');
+        tdAbbr.textContent = item.abbr;
+        const tdAct = document.createElement('td');
+        const btn = document.createElement('button');
+        btn.textContent = 'Remove';
+        btn.classList.add('remove');
+        btn.type = 'button';
+        btn.onclick = function() {
+          removeRefValue(type, idx);
+        };
+        tdAct.appendChild(btn);
+        tr.appendChild(tdName);
+        tr.appendChild(tdAbbr);
+        tr.appendChild(tdAct);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      container.appendChild(table);
+
+      // If this is a custom table, provide a button to delete the table entirely
+      if (type.startsWith('custom:')) {
+        const tableName = type.substring('custom:'.length);
+        const deleteDiv = document.createElement('div');
+        deleteDiv.style.marginTop = '10px';
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete Table';
+        delBtn.classList.add('remove');
+        delBtn.type = 'button';
+        delBtn.onclick = function() {
+          const confirmed = confirm('Are you sure you want to delete the table "' + tableName + '"? This cannot be undone.');
+          if (!confirmed) return;
+          // Remove the table from customTables
+          delete customTables[tableName];
+          saveData();
+          // Re-render nav and combination generator
+          renderRefNav();
+          renderCombinationGenerator();
+        };
+        deleteDiv.appendChild(delBtn);
+        container.appendChild(deleteDiv);
+      }
+    }
+
+    // Add reference value based on type
+    function addReferenceValue(type, name) {
+      // Handle custom tables (prefixed with 'custom:')
+      if (type.startsWith('custom:')) {
+        const tableName = type.substring('custom:'.length);
+        const tableVal = customTables[tableName];
+        // If combination table, disallow manual addition
+        if (tableVal && tableVal.combos) {
+          alert('You cannot manually add values to a combination table.');
+          return;
+        }
+        if (!tableVal || Array.isArray(tableVal)) {
+          if (!Array.isArray(customTables[tableName])) {
+            customTables[tableName] = [];
+          }
+        let abbr = createCustomAbbr(name, customTables[tableName]);
+        // Apply settings for this custom table if present
+        abbr = applyTableSettings(abbr, type, customTables[tableName]);
+        customTables[tableName].push({ name: name, abbr: abbr });
+          saveData();
+          renderRefContent(type);
+          renderCombinationGenerator();
+        }
+        return;
+      }
+      if (type === 'brand') {
+        let abbr = createBrandAbbr(name);
+        abbr = applyTableSettings(abbr, 'brand', brands);
+        brands.push({ name: name, abbr: abbr });
+      } else if (type === 'product') {
+        let abbr = createProductAbbr(name);
+        abbr = applyTableSettings(abbr, 'product', products);
+        products.push({ name: name, abbr: abbr });
+      } else if (type === 'category') {
+        let abbr = createCategoryAbbr(name);
+        abbr = applyTableSettings(abbr, 'category', categories);
+        categories.push({ name: name, abbr: abbr });
+      } else if (type === 'variant') {
+        let abbr = createVariantAbbr(name);
+        abbr = applyTableSettings(abbr, 'variant', variants);
+        variants.push({ name: name, abbr: abbr });
+      } else if (type === 'size') {
+        let abbr = createSizeAbbr(name);
+        abbr = applyTableSettings(abbr, 'size', sizes);
+        sizes.push({ name: name, abbr: abbr });
+      } else if (type === 'customer') {
+        let abbr = createCustomerAbbr(name);
+        abbr = applyTableSettings(abbr, 'customer', customers);
+        customers.push({ name: name, abbr: abbr });
+      } else if (type === 'age') {
+        let abbr = createAgeAbbr(name);
+        abbr = applyTableSettings(abbr, 'age', ages);
+        ages.push({ name: name, abbr: abbr });
+      } else if (type === 'location') {
+        let abbr = createLocationAbbr(name);
+        abbr = applyTableSettings(abbr, 'location', locations);
+        locations.push({ name: name, abbr: abbr });
+      }
+      saveData();
+      renderRefContent(type);
+      populateNewProductForm();
+    }
+
+    // Remove reference value
+    function removeRefValue(type, index) {
+      if (type.startsWith('custom:')) {
+        const tableName = type.substring('custom:'.length);
+        const tableVal = customTables[tableName];
+        if (tableVal) {
+          if (Array.isArray(tableVal)) {
+            // simple custom table
+            tableVal.splice(index, 1);
+          } else if (tableVal.combos) {
+            // combination table
+            tableVal.combos.splice(index, 1);
+          }
+          saveData();
+          renderRefContent(type);
+          renderCombinationGenerator();
+        }
+        return;
+      }
+      if (type === 'brand') {
+        brands.splice(index, 1);
+      } else if (type === 'product') {
+        products.splice(index, 1);
+      } else if (type === 'category') {
+        categories.splice(index, 1);
+      } else if (type === 'variant') {
+        variants.splice(index, 1);
+      } else if (type === 'size') {
+        sizes.splice(index, 1);
+      } else if (type === 'customer') {
+        customers.splice(index, 1);
+      } else if (type === 'age') {
+        ages.splice(index, 1);
+      } else if (type === 'location') {
+        locations.splice(index, 1);
+      }
+      saveData();
+      renderRefContent(type);
+      populateNewProductForm();
+    }
+
+    // Render product master table
+    function renderProductMasterTable() {
+      const tbody = document.querySelector('#productMasterTable tbody');
+      tbody.innerHTML = '';
+      productMaster.forEach((prod, idx) => {
+        const tr = document.createElement('tr');
+        // fallbacks for older product objects
+        const variantName = prod.variantName || prod.variant || '';
+        const sizeName = prod.sizeName || prod.size || '';
+        const customerName = prod.customerName || prod.customer || '';
+        const ageName = prod.minAgeName || prod.minAge || '';
+        const locationName = prod.locationName || prod.location || '';
+        const templateUsed = prod.skuTemplateName || '';
+        tr.innerHTML = `<td>${prod.brandName}</td>
+                        <td>${prod.productName}</td>
+                        <td>${prod.categoryName}</td>
+                        <td>${variantName}</td>
+                        <td>${sizeName}</td>
+                        <td>${customerName}</td>
+                        <td>${ageName}</td>
+                        <td>${locationName}</td>
+                        <td>${templateUsed}</td>
+                        <td>${prod.sku}</td>
+                        <td>${prod.upc}</td>`;
+        const tdAct = document.createElement('td');
+        // View button to see template details
+        const viewBtn = document.createElement('button');
+        viewBtn.textContent = 'View';
+        viewBtn.classList.add('view');
+        viewBtn.type = 'button';
+        viewBtn.onclick = function() {
+          // find template index by name
+          const tplIndex = skuTemplates.findIndex(tpl => tpl.name === templateUsed);
+          if (tplIndex >= 0) {
+            showTemplateDetails(tplIndex);
+          }
+        };
+        tdAct.appendChild(viewBtn);
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.classList.add('delete');
+        delBtn.type = 'button';
+        delBtn.onclick = function() {
+          removeProduct(idx);
+        };
+        tdAct.appendChild(delBtn);
+        tr.appendChild(tdAct);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Remove product from master
+    function removeProduct(index) {
+      productMaster.splice(index, 1);
+      saveData();
+      renderProductMasterTable();
+    }
+
+    // Setup dual-list controls for variant, size, customer group, and location
+    function setupDualLists() {
+      // Utility to move selected options from source to destination
+      function moveOptions(srcId, destId) {
+        const src = document.getElementById(srcId);
+        const dest = document.getElementById(destId);
+        if (!src || !dest) return;
+        Array.from(src.selectedOptions).forEach(opt => {
+          const newOpt = opt.cloneNode(true);
+          dest.appendChild(newOpt);
+          src.removeChild(opt);
+        });
+      }
+      // Utility to move selected options back
+      function removeOptions(srcId, destId) {
+        moveOptions(srcId, destId);
+      }
+      // Variant buttons
+      const addVarBtn = document.getElementById('addVariantBtn');
+      const removeVarBtn = document.getElementById('removeVariantBtn');
+      if (addVarBtn) addVarBtn.onclick = () => moveOptions('variantAvailable', 'variantSelected');
+      if (removeVarBtn) removeVarBtn.onclick = () => moveOptions('variantSelected', 'variantAvailable');
+      // Size buttons
+      const addSizeBtn = document.getElementById('addSizeBtn');
+      const removeSizeBtn = document.getElementById('removeSizeBtn');
+      if (addSizeBtn) addSizeBtn.onclick = () => moveOptions('sizeAvailable', 'sizeSelected');
+      if (removeSizeBtn) removeSizeBtn.onclick = () => moveOptions('sizeSelected', 'sizeAvailable');
+      // Customer group buttons
+      const addCustBtn = document.getElementById('addCustomerBtn');
+      const removeCustBtn = document.getElementById('removeCustomerBtn');
+      if (addCustBtn) addCustBtn.onclick = () => moveOptions('customerAvailable', 'customerSelected');
+      if (removeCustBtn) removeCustBtn.onclick = () => moveOptions('customerSelected', 'customerAvailable');
+      // Location buttons
+      const addLocBtn = document.getElementById('addLocationBtn');
+      const removeLocBtn = document.getElementById('removeLocationBtn');
+      if (addLocBtn) addLocBtn.onclick = () => moveOptions('locationAvailable', 'locationSelected');
+      if (removeLocBtn) removeLocBtn.onclick = () => moveOptions('locationSelected', 'locationAvailable');
+    }
+
+    // Render combination generator UI
+    function renderCombinationGenerator() {
+      const combDiv = document.getElementById('combinationGenerator');
+      if (!combDiv) return;
+      combDiv.innerHTML = '';
+      // Title
+      const title = document.createElement('h3');
+      title.textContent = 'Combination Generator';
+      combDiv.appendChild(title);
+      // Description and optional settings for combination codes
+      const desc = document.createElement('p');
+      desc.textContent = 'Select multiple tables to generate combinatorial abbreviations.';
+      combDiv.appendChild(desc);
+      // Settings container
+      const settingsDiv = document.createElement('div');
+      settingsDiv.classList.add('form-group');
+      // Max length input
+      const lblLen = document.createElement('label');
+      lblLen.textContent = 'Max code length (optional)';
+      lblLen.style.marginRight = '5px';
+      const inpLen = document.createElement('input');
+      inpLen.type = 'number';
+      inpLen.min = '1';
+      inpLen.max = '5';
+      inpLen.id = 'combMaxLengthInput';
+      inpLen.style.width = '80px';
+      // Format select
+      const lblFmt = document.createElement('label');
+      lblFmt.textContent = 'Format';
+      lblFmt.style.marginLeft = '10px';
+      lblFmt.style.marginRight = '5px';
+      const selFmt = document.createElement('select');
+      selFmt.id = 'combFormatSelect';
+      ['','AlphaNumeric','Letters','Numeric'].forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f;
+        opt.textContent = f === '' ? 'Default' : f;
+        selFmt.appendChild(opt);
+      });
+      settingsDiv.appendChild(lblLen);
+      settingsDiv.appendChild(inpLen);
+      settingsDiv.appendChild(lblFmt);
+      settingsDiv.appendChild(selFmt);
+      combDiv.appendChild(settingsDiv);
+      // Container for checkboxes
+      const checkboxDiv = document.createElement('div');
+      // List of all types (default and custom)
+      const allTables = [
+        { type: 'brand', label: 'Brands' },
+        { type: 'product', label: 'Products' },
+        { type: 'category', label: 'Categories' },
+        { type: 'variant', label: 'Variants' },
+        { type: 'customer', label: 'Customer Groups' },
+        { type: 'age', label: 'Age Groups' },
+        { type: 'location', label: 'Locations' }
+      ];
+      // Add custom tables to list
+      Object.keys(customTables).forEach(key => {
+        allTables.push({ type: 'custom:' + key, label: key });
+      });
+      // Create checkboxes
+      allTables.forEach(tab => {
+        const label = document.createElement('label');
+        label.style.marginRight = '10px';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = tab.type;
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(' ' + tab.label));
+        checkboxDiv.appendChild(label);
+      });
+      combDiv.appendChild(checkboxDiv);
+      // Generate button
+      const genBtn = document.createElement('button');
+      genBtn.type = 'button';
+      genBtn.textContent = 'Generate Combinations';
+      genBtn.style.marginTop = '10px';
+      genBtn.onclick = function() {
+        generateCombinations();
+      };
+      combDiv.appendChild(genBtn);
+      // Result table container
+      const resultDiv = document.createElement('div');
+      resultDiv.id = 'combinationResults';
+      resultDiv.style.marginTop = '10px';
+      combDiv.appendChild(resultDiv);
+    }
+
+    // Generate combinational abbreviations from selected tables
+    function generateCombinations() {
+      const combDiv = document.getElementById('combinationGenerator');
+      if (!combDiv) return;
+      const resultDiv = document.getElementById('combinationResults');
+      if (!resultDiv) return;
+      // Gather selected types
+      const selectedTypes = [];
+      combDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) selectedTypes.push(cb.value);
+      });
+      resultDiv.innerHTML = '';
+      if (selectedTypes.length < 2) {
+        const p = document.createElement('p');
+        p.textContent = 'Please select at least two tables to generate combinations.';
+        resultDiv.appendChild(p);
+        return;
+      }
+      // Build arrays of items for each selected type
+      const lists = [];
+      selectedTypes.forEach(type => {
+        if (type.startsWith('custom:')) {
+          const tableName = type.substring('custom:'.length);
+          const tableVal = customTables[tableName];
+          if (Array.isArray(tableVal)) {
+            lists.push(tableVal.map(item => ({ name: item.name, abbr: item.abbr })));
+          } else if (tableVal && tableVal.combos) {
+            // For combination tables, we cannot generate combinations further; treat combos as separate items with abbr
+            lists.push(tableVal.combos.map(item => {
+              return { name: item.abbr, abbr: item.abbr }; // treat combination abbr as both name and abbr
+            }));
+          }
+        } else if (type === 'brand') {
+          lists.push(brands.map(item => ({ name: item.name, abbr: item.abbr })));
+        } else if (type === 'product') {
+          lists.push(products.map(item => ({ name: item.name, abbr: item.abbr })));
+        } else if (type === 'category') {
+          lists.push(categories.map(item => ({ name: item.name, abbr: item.abbr })));
+        } else if (type === 'variant') {
+          lists.push(variants.map(item => ({ name: item.name, abbr: item.abbr })));
+        } else if (type === 'customer') {
+          lists.push(customers.map(item => ({ name: item.name, abbr: item.abbr })));
+        } else if (type === 'age') {
+          lists.push(ages.map(item => ({ name: item.name, abbr: item.abbr })));
+        } else if (type === 'location') {
+          lists.push(locations.map(item => ({ name: item.name, abbr: item.abbr })));
+        }
+      });
+      // Compute cartesian product
+      function cartesianProduct(arr) {
+        return arr.reduce((a, b) => {
+          const ret = [];
+          a.forEach(aItem => {
+            b.forEach(bItem => {
+              ret.push(aItem.concat([bItem]));
+            });
+          });
+          return ret;
+        }, [[]]);
+      }
+      const combos = cartesianProduct(lists);
+      // Create result table
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      // Build header: name columns and abbreviation
+      let headerHTML = '<tr>';
+      selectedTypes.forEach(type => {
+        // show label (strip custom prefix)
+        const label = type.startsWith('custom:') ? type.substring('custom:'.length) : type;
+        headerHTML += '<th>' + label + '</th>';
+      });
+      headerHTML += '<th>Combination Abbr</th></tr>';
+      thead.innerHTML = headerHTML;
+      const tbody = document.createElement('tbody');
+      // Reset last generated combos
+      lastGeneratedCombinations = [];
+      lastSelectedTypes = selectedTypes.slice();
+      const usedCodes = new Set();
+      combos.forEach((combo, comboIndex) => {
+        const tr = document.createElement('tr');
+        let fullAbbr = '';
+        const namesObj = {};
+        combo.forEach((item, idx) => {
+          const td = document.createElement('td');
+          td.textContent = item.name;
+          tr.appendChild(td);
+          fullAbbr += item.abbr;
+          // store name by type
+          const typeKey = selectedTypes[idx];
+          namesObj[typeKey] = item.name;
+        });
+        // Retrieve settings for combination code
+        const maxInput = document.getElementById('combMaxLengthInput');
+        const formatSelect = document.getElementById('combFormatSelect');
+        let maxLenVal = null;
+        let fmtVal = null;
+        if (maxInput && maxInput.value) {
+          const n = parseInt(maxInput.value, 10);
+          if (!isNaN(n) && n > 0) maxLenVal = n;
+        }
+        if (formatSelect && formatSelect.value) {
+          fmtVal = formatSelect.value;
+        }
+        // generate code with options
+        const code = generateCombinationCodeWithOptions(fullAbbr, comboIndex, usedCodes, maxLenVal, fmtVal);
+        const abbrTd = document.createElement('td');
+        abbrTd.textContent = code;
+        tr.appendChild(abbrTd);
+        tbody.appendChild(tr);
+        // store for saving
+        lastGeneratedCombinations.push({ names: namesObj, abbr: code, fullAbbr: fullAbbr });
+      });
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      resultDiv.appendChild(table);
+      // Add Save button
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.textContent = 'Save Combinations';
+      saveBtn.style.marginTop = '10px';
+      saveBtn.onclick = function() {
+        saveCombinations();
+      };
+      resultDiv.appendChild(saveBtn);
+    }
+
+    // Save generated combinations as a new custom combination table
+    function saveCombinations() {
+      if (!lastGeneratedCombinations || lastGeneratedCombinations.length === 0) {
+        alert('No combinations to save.');
+        return;
+      }
+      let name = prompt('Enter a name for the combination table:');
+      if (!name) return;
+      name = name.trim();
+      if (!name) return;
+      // Check conflicts with default tables
+      const lowerName = name.toLowerCase();
+      const defaultTypes = ['brand','product','category','variant','customer','age','location'];
+      if (defaultTypes.includes(lowerName)) {
+        alert('Name conflicts with an existing default table. Choose another name.');
+        return;
+      }
+      if (customTables.hasOwnProperty(name)) {
+        alert('A table with this name already exists. Choose another name.');
+        return;
+      }
+      // Build combination entries
+      const combosArr = lastGeneratedCombinations.map(item => {
+        // Build key using all selected types and their names
+        const keyParts = lastSelectedTypes.map(type => {
+          return type + '=' + (item.names[type] || '');
+        });
+        const key = keyParts.join('|');
+        return { key: key, abbr: item.abbr, names: item.names };
+      });
+      customTables[name] = {
+        types: lastSelectedTypes.slice(),
+        combos: combosArr
+      };
+      saveData();
+      renderRefNav();
+      renderCombinationGenerator();
+      alert('Combination table "' + name + '" saved successfully.');
+    }
+
+    // Add a new reference table (custom)
+    function addReferenceTable(tableName) {
+      if (!tableName) return;
+      // Trim and capitalize first letter of table name for consistency
+      const key = tableName.trim();
+      if (!key) return;
+      // Avoid conflict with existing default types and custom tables
+      const lowerKey = key.toLowerCase();
+      const defaultTypes = ['brand','product','category','variant','customer','age','location'];
+      if (defaultTypes.includes(lowerKey)) {
+        alert('Table name conflicts with existing default table. Please choose a different name.');
+        return;
+      }
+      if (customTables.hasOwnProperty(key)) {
+        alert('Table already exists.');
+        return;
+      }
+      // Initialize empty list for new table
+      customTables[key] = [];
+      saveData();
+      renderRefNav();
+      renderCombinationGenerator();
+    }
+
+    // Tab switching
+    function setupTabs() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const target = this.getAttribute('data-tab');
+          // deactivate all
+          tabButtons.forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+          // activate this
+          this.classList.add('active');
+          document.getElementById(target).classList.add('active');
+        });
+      });
+    }
+
+    // Reference nav switching
+    // Render the reference navigation buttons dynamically
+    function renderRefNav() {
+      const navDiv = document.getElementById('refNav');
+      if (!navDiv) return;
+      navDiv.innerHTML = '';
+      // list of default tables with labels
+      const defaultTabs = [
+        { type: 'brand', label: 'Brands' },
+        { type: 'product', label: 'Products' },
+        { type: 'category', label: 'Categories' },
+        { type: 'variant', label: 'Variants' },
+        { type: 'size', label: 'Sizes' },
+        { type: 'customer', label: 'Customer Groups' },
+        { type: 'age', label: 'Age Groups' },
+        { type: 'location', label: 'Locations' }
+      ];
+      // Build buttons for default tables
+      defaultTabs.forEach(tab => {
+        const btn = document.createElement('button');
+        btn.textContent = tab.label;
+        btn.classList.add('ref-button');
+        btn.setAttribute('data-type', tab.type);
+        btn.addEventListener('click', function() {
+          // Remove active class from all nav buttons
+          navDiv.querySelectorAll('.ref-button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderRefContent(tab.type);
+        });
+        navDiv.appendChild(btn);
+      });
+      // Build buttons for custom tables
+      Object.keys(customTables).forEach(key => {
+        const btn = document.createElement('button');
+        btn.textContent = key;
+        btn.classList.add('ref-button');
+        const type = 'custom:' + key;
+        btn.setAttribute('data-type', type);
+        btn.addEventListener('click', function() {
+          navDiv.querySelectorAll('.ref-button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderRefContent(type);
+        });
+        navDiv.appendChild(btn);
+      });
+      // Activate the first button by default
+      const firstBtn = navDiv.querySelector('.ref-button');
+      if (firstBtn) {
+        firstBtn.classList.add('active');
+        renderRefContent(firstBtn.getAttribute('data-type'));
+      }
+    }
+
+    // Setup reference nav events (placeholder kept for compatibility)
+    function setupRefNav() {
+      // This function is now handled by renderRefNav which attaches event listeners
+    }
+
+    // ================= SKU Templates =================
+
+    // Render the list of templates
+    function renderTemplateList() {
+      const listDiv = document.getElementById('templateList');
+      if (!listDiv) return;
+      listDiv.innerHTML = '';
+      // If no templates, show message
+      if (!skuTemplates || skuTemplates.length === 0) {
+        const p = document.createElement('p');
+        p.textContent = 'No SKU templates found.';
+        listDiv.appendChild(p);
+        return;
+      }
+      // Build table of templates
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th>Name</th><th>Length</th><th>Sample SKU</th><th>Action</th></tr>';
+      const tbody = document.createElement('tbody');
+      skuTemplates.forEach((tpl, idx) => {
+        // compute sample and length on the fly
+        const sampleInfo = computeTemplateSample(tpl.types);
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + tpl.name + '</td>' +
+                       '<td>' + sampleInfo.length + '</td>' +
+                       '<td>' + (sampleInfo.sku || '') + '</td>';
+        const tdAct = document.createElement('td');
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Remove';
+        delBtn.classList.add('remove');
+        delBtn.type = 'button';
+        delBtn.onclick = function() {
+          removeTemplate(idx);
+        };
+        tdAct.appendChild(delBtn);
+        tr.appendChild(tdAct);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      listDiv.appendChild(table);
+    }
+
+    // Populate the multi-select dropdown for template creation
+    function populateTemplateTablesSelect() {
+      // Populate the dropdown for selecting tables in template creation.
+      const select = document.getElementById('templateTablesSelect');
+      if (!select) return;
+      select.innerHTML = '';
+      const options = [];
+      // Default tables
+      const defaultTabs = [
+        { type: 'brand', label: 'Brand' },
+        { type: 'product', label: 'Product' },
+        { type: 'category', label: 'Category' },
+        { type: 'variant', label: 'Variant' },
+        { type: 'size', label: 'Size' },
+        { type: 'customer', label: 'Customer Group' },
+        { type: 'age', label: 'Age Group' },
+        { type: 'location', label: 'Location' }
+      ];
+      defaultTabs.forEach(t => options.push(t));
+      // Custom tables (simple and combination)
+      Object.keys(customTables).forEach(key => {
+        options.push({ type: 'custom:' + key, label: key });
+      });
+      // Insert placeholder option at top
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select table';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      select.appendChild(placeholder);
+      // Only include tables not already selected
+      options.forEach(opt => {
+        if (!selectedTemplateTables.includes(opt.type)) {
+          const optionEl = document.createElement('option');
+          optionEl.value = opt.type;
+          optionEl.textContent = opt.label;
+          // Disable option if adding it would cause an overlap with selected tables
+          if (!canAddTableToTemplate(opt.type)) {
+            optionEl.disabled = true;
+          }
+          select.appendChild(optionEl);
+        }
+      });
+    }
+
+    // Render selected tables as chips with remove buttons
+    function renderSelectedTablesChips() {
+      const container = document.getElementById('selectedTablesContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      selectedTemplateTables.forEach((type) => {
+        // Determine label
+        let label = '';
+        if (type.startsWith('custom:')) {
+          label = type.substring('custom:'.length);
+        } else {
+          const mapping = {
+            'brand': 'Brand',
+            'product': 'Product',
+            'category': 'Category',
+            'variant': 'Variant',
+            'customer': 'Customer Group',
+            'age': 'Age Group',
+            'location': 'Location'
+          };
+          label = mapping[type] || type;
+        }
+        const chip = document.createElement('span');
+        chip.style.display = 'inline-flex';
+        chip.style.alignItems = 'center';
+        chip.style.backgroundColor = '#e0e0e0';
+        chip.style.borderRadius = '16px';
+        chip.style.padding = '4px 8px';
+        chip.style.fontSize = '14px';
+        chip.textContent = label;
+        // Remove button (x)
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '×';
+        removeBtn.style.marginLeft = '6px';
+        removeBtn.style.background = 'transparent';
+        removeBtn.style.border = 'none';
+        removeBtn.style.cursor = 'pointer';
+        removeBtn.style.fontWeight = 'bold';
+        removeBtn.addEventListener('click', function() {
+          // Remove this type
+          selectedTemplateTables = selectedTemplateTables.filter(t => t !== type);
+          renderSelectedTablesChips();
+          populateTemplateTablesSelect();
+        });
+        chip.appendChild(removeBtn);
+        container.appendChild(chip);
+      });
+      // Show or hide the create combination button based on selection
+      const combContainer = document.getElementById('createCombinationContainer');
+      if (combContainer) {
+        if (selectedTemplateTables.length >= 2) {
+          // Check if a combination table already exists for exactly these types (order independent)
+          const sortedSel = selectedTemplateTables.slice().sort().join('|');
+          let exists = false;
+          Object.keys(customTables).forEach(name => {
+            const val = customTables[name];
+            if (val && val.types && val.types.length === selectedTemplateTables.length) {
+              const sortedTypes = val.types.slice().sort().join('|');
+              if (sortedTypes === sortedSel) {
+                exists = true;
+              }
+            }
+          });
+          combContainer.style.display = exists ? 'none' : 'block';
+        } else {
+          combContainer.style.display = 'none';
+        }
+      }
+    }
+
+    // Create a new combination table from currently selected template tables
+    function createCombinationFromSelected() {
+      // Only allow if two or more tables selected
+      if (selectedTemplateTables.length < 2) {
+        alert('Please select at least two reference tables to create a combination.');
+        return;
+      }
+      // Check if combination table already exists (should not show button when exists, but double-check)
+      const sortedSel = selectedTemplateTables.slice().sort().join('|');
+      let exists = false;
+      Object.keys(customTables).forEach(name => {
+        const val = customTables[name];
+        if (val && val.types && val.types.length === selectedTemplateTables.length) {
+          const sortedTypes = val.types.slice().sort().join('|');
+          if (sortedTypes === sortedSel) {
+            exists = true;
+          }
+        }
+      });
+      if (exists) {
+        alert('A combination table for these tables already exists.');
+        return;
+      }
+      // Ask user for a name for the combination table
+      const name = prompt('Enter a name for the new combination table:', '');
+      if (!name) return;
+      if (customTables[name]) {
+        alert('A table with this name already exists. Please choose another name.');
+        return;
+      }
+      // Gather items for each selected type
+      const itemsLists = [];
+      for (const type of selectedTemplateTables) {
+        if (type.startsWith('custom:')) {
+          const tblName = type.substring('custom:'.length);
+          const val = customTables[tblName];
+          if (!val) {
+            itemsLists.push([]);
+          } else if (Array.isArray(val)) {
+            // simple custom table
+            const items = val.map(item => ({ abbr: item.abbr, name: item.name }));
+            itemsLists.push(items);
+          } else if (val && val.combos) {
+            // combination table: use its combos as items
+            const items = val.combos.map(combo => ({ abbr: combo.abbr, name: combo.abbr }));
+            itemsLists.push(items);
+          }
+        } else if (type === 'brand') {
+          itemsLists.push(brands.map(b => ({ abbr: b.abbr, name: b.name })));
+        } else if (type === 'product') {
+          itemsLists.push(products.map(p => ({ abbr: p.abbr, name: p.name })));
+        } else if (type === 'category') {
+          itemsLists.push(categories.map(c => ({ abbr: c.abbr, name: c.name })));
+        } else if (type === 'variant') {
+          itemsLists.push(variants.map(v => ({ abbr: v.abbr, name: v.name })));
+        } else if (type === 'customer') {
+          itemsLists.push(customers.map(cu => ({ abbr: cu.abbr, name: cu.name })));
+        } else if (type === 'age') {
+          itemsLists.push(ages.map(a => ({ abbr: a.abbr, name: a.name })));
+        } else if (type === 'location') {
+          itemsLists.push(locations.map(l => ({ abbr: l.abbr, name: l.name })));
+        } else {
+          // unknown type: skip
+          itemsLists.push([]);
+        }
+      }
+      // Generate cross product of items
+      function cartesian(lists) {
+        let result = [[]];
+        for (const list of lists) {
+          const newResult = [];
+          for (const prefix of result) {
+            for (const item of list) {
+              newResult.push(prefix.concat([item]));
+            }
+          }
+          result = newResult;
+        }
+        return result;
+      }
+      const combosArray = cartesian(itemsLists);
+      const combos = [];
+      const usedCodes = new Set();
+      combosArray.forEach((comboItems, idx) => {
+        const fullAbbr = comboItems.map(it => it.abbr).join('');
+        const code = generateCombinationCode(fullAbbr, idx, usedCodes);
+        combos.push({ abbr: code });
+      });
+      // Save combination table
+      customTables[name] = {
+        types: selectedTemplateTables.slice(),
+        combos: combos
+      };
+      saveData();
+      alert('Combination table "' + name + '" created successfully.');
+      // Refresh UI: reference nav, template select options
+      renderRefNav();
+      renderCombinationGenerator();
+      populateTemplateTablesSelect();
+      renderSelectedTablesChips();
+    }
+
+    // Compute sample SKU and length for a given array of types
+    function computeTemplateSample(selectedTypes) {
+      // Build sample abbreviations for each type
+      const sampleAbbrs = {};
+      const sampleNames = {};
+      selectedTypes.forEach(type => {
+        if (type.startsWith('custom:')) {
+          const tableName = type.substring('custom:'.length);
+          const tableVal = customTables[tableName];
+          if (!tableVal) {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          } else if (Array.isArray(tableVal)) {
+            // simple custom table
+            const item = tableVal[0];
+            if (item) {
+              sampleAbbrs[type] = item.abbr;
+              sampleNames[type] = item.name;
+            } else {
+              sampleAbbrs[type] = '';
+              sampleNames[type] = '';
+            }
+          } else if (tableVal && tableVal.combos) {
+            // combination table: use first combination entry
+            const combo = tableVal.combos[0];
+            if (combo) {
+              sampleAbbrs[type] = combo.abbr;
+              // sampleNames store per type names
+              sampleNames[type] = combo.abbr; // names not needed
+            } else {
+              sampleAbbrs[type] = '';
+              sampleNames[type] = '';
+            }
+          }
+        } else if (type === 'brand') {
+          if (brands.length > 0) {
+            sampleAbbrs[type] = brands[0].abbr;
+            sampleNames[type] = brands[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'product') {
+          if (products.length > 0) {
+            sampleAbbrs[type] = products[0].abbr;
+            sampleNames[type] = products[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'category') {
+          if (categories.length > 0) {
+            sampleAbbrs[type] = categories[0].abbr;
+            sampleNames[type] = categories[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'variant') {
+          if (variants.length > 0) {
+            sampleAbbrs[type] = variants[0].abbr;
+            sampleNames[type] = variants[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'size') {
+          if (sizes.length > 0) {
+            sampleAbbrs[type] = sizes[0].abbr;
+            sampleNames[type] = sizes[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'customer') {
+          if (customers.length > 0) {
+            sampleAbbrs[type] = customers[0].abbr;
+            sampleNames[type] = customers[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'age') {
+          if (ages.length > 0) {
+            sampleAbbrs[type] = ages[0].abbr;
+            sampleNames[type] = ages[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        } else if (type === 'location') {
+          if (locations.length > 0) {
+            sampleAbbrs[type] = locations[0].abbr;
+            sampleNames[type] = locations[0].name;
+          } else {
+            sampleAbbrs[type] = '';
+            sampleNames[type] = '';
+          }
+        }
+      });
+      // Determine if a saved combination table applies (similar logic to generateSkuForProduct but simplified for sample)
+      let bestMatchLength = 0;
+      let bestComboTable = null;
+      Object.keys(customTables).forEach(name => {
+        const val = customTables[name];
+        if (val && val.types && val.combos) {
+          // ensure the combination table types are subset of selectedTypes
+          const isSubset = val.types.every(t => selectedTypes.includes(t));
+          if (!isSubset) return;
+          // choose table with larger type count
+          if (val.types.length > bestMatchLength) {
+            bestMatchLength = val.types.length;
+            bestComboTable = name;
+          }
+        }
+      });
+      let skuString = '';
+      let usedTypesSet = new Set();
+      if (bestComboTable) {
+          // Append the combo abbreviation (use first entry abbreviation) and mark types as used
+          const comboVal = customTables[bestComboTable];
+          const firstCombo = comboVal.combos[0];
+          if (firstCombo) {
+            skuString += firstCombo.abbr;
+            comboVal.types.forEach(t => usedTypesSet.add(t));
+          }
+      }
+      // Append remaining abbreviations in the order of selectedTypes
+      selectedTypes.forEach(type => {
+        if (!usedTypesSet.has(type)) {
+          skuString += (sampleAbbrs[type] || '');
+        }
+      });
+      // Do not pad zeros to length 12; return the SKU as-is
+      const length = skuString.length;
+      return { sku: skuString, length: length };
+    }
+
+    // Generate sample and suggestions when user clicks generate in template form
+    function generateTemplate() {
+      const nameInput = document.getElementById('templateName');
+      const resultDiv = document.getElementById('templateResult');
+      const saveContainer = document.getElementById('saveTemplateContainer');
+      if (!nameInput) return;
+      // Use selectedTemplateTables instead of multi-select
+      const selectedTypes = selectedTemplateTables.slice();
+      if (!nameInput.value.trim()) {
+        resultDiv.innerHTML = '<div class="message error">Please enter a template name.</div>';
+        saveContainer.style.display = 'none';
+        return;
+      }
+      if (selectedTypes.length === 0) {
+        resultDiv.innerHTML = '<div class="message error">Please select at least one reference table.</div>';
+        saveContainer.style.display = 'none';
+        return;
+      }
+      // Compute sample
+      const sampleInfo = computeTemplateSample(selectedTypes);
+      let html = '';
+      // Build default structure representation: e.g., Brand[2]Customer[1]Variant[2]
+      // Determine sample abbreviations for each selected type similar to computeTemplateSample
+      // We'll create a structure array and a human-readable string
+      const structureParts = [];
+      selectedTypes.forEach(t => {
+        let abbr = '';
+        if (t.startsWith('custom:')) {
+          const tblName = t.substring('custom:'.length);
+          const val = customTables[tblName];
+          if (val && val.combos) {
+            // combination table: use length of first abbr
+            const combo = val.combos[0];
+            if (combo) abbr = combo.abbr;
+          } else if (Array.isArray(val)) {
+            const first = val[0];
+            if (first) abbr = first.abbr;
+          }
+        } else if (t === 'brand' && brands[0]) abbr = brands[0].abbr;
+        else if (t === 'product' && products[0]) abbr = products[0].abbr;
+        else if (t === 'category' && categories[0]) abbr = categories[0].abbr;
+        else if (t === 'variant' && variants[0]) abbr = variants[0].abbr;
+        else if (t === 'customer' && customers[0]) abbr = customers[0].abbr;
+        else if (t === 'age' && ages[0]) abbr = ages[0].abbr;
+        else if (t === 'location' && locations[0]) abbr = locations[0].abbr;
+        const len = abbr ? abbr.length : 0;
+        structureParts.push({ type: t, length: len });
+      });
+      // Compose structure string
+      let structureStr = '';
+      structureParts.forEach((part, idx) => {
+        const typeLabel = part.type.startsWith('custom:') ? part.type.substring('custom:'.length) : part.type;
+        structureStr += (typeLabel + '[' + part.length + ']');
+        if (idx < structureParts.length - 1) structureStr += '';
+      });
+      // Store structure for later editing
+      window.currentTemplateStructure = structureParts;
+      html += '<p><strong>Sample SKU:</strong> ' + (sampleInfo.sku || '(empty)') + '</p>';
+      html += '<p><strong>Length:</strong> ' + sampleInfo.length + '</p>';
+      html += '<p><strong>Structure:</strong> <span id="structureDisplay">' + structureStr + '</span> <button type="button" id="editStructureBtn" style="margin-left:10px;">Edit</button></p>';
+      // Hidden input for editing structure
+      html += '<div id="structureEditContainer" style="display:none; margin-top:5px;">' +
+              '<input type="text" id="structureInput" style="width:100%;" value="' + structureStr + '" />' +
+              '<button type="button" id="saveStructureBtn" style="margin-top:5px;">Save Structure</button>' +
+              '</div>';
+      // If length exceeds 12, provide suggestions
+      if (sampleInfo.length > 12) {
+        html += '<p style="color:#c62828;">SKU length exceeds the 12 character limit.</p>';
+        const suggestions = [];
+        Object.keys(customTables).forEach(name => {
+          const val = customTables[name];
+          if (val && val.types && val.combos) {
+            // must be subset of selectedTypes
+            const isSubset = val.types.every(t => selectedTypes.includes(t));
+            if (!isSubset) return;
+            // calculate candidate length using this combination
+            const comboAbbrLen = (val.combos[0] && val.combos[0].abbr) ? val.combos[0].abbr.length : 0;
+            let candidateLength = comboAbbrLen;
+            selectedTypes.forEach(t => {
+              if (!val.types.includes(t)) {
+                const info = computeTemplateSample([t]);
+                candidateLength += info.length;
+              }
+            });
+            if (candidateLength <= 12) {
+              suggestions.push(name + ' (length ' + candidateLength + ')');
+            }
+          }
+        });
+        if (suggestions.length > 0) {
+          html += '<p><strong>Suggestions:</strong> Use combination table(s) ' + suggestions.join(', ') + ' to reduce length.</p>';
+        } else {
+          html += '<p><strong>Suggestions:</strong> No existing combination table can reduce the length to 12 or below. Consider creating a new combination in Reference Data.</p>';
+        }
+      }
+      resultDiv.innerHTML = html;
+      saveContainer.style.display = 'block';
+
+      // Attach event listeners for editing structure
+      const editBtn = document.getElementById('editStructureBtn');
+      const structureContainer = document.getElementById('structureEditContainer');
+      const structureInput = document.getElementById('structureInput');
+      const saveStructureBtn = document.getElementById('saveStructureBtn');
+      if (editBtn) {
+        editBtn.addEventListener('click', function() {
+          // Only allow editing if current sample length is 12 or less
+          if (sampleInfo.length > 12) {
+            alert('Cannot edit structure: sample length exceeds 12 characters.');
+            return;
+          }
+          structureContainer.style.display = (structureContainer.style.display === 'none' ? 'block' : 'none');
+        });
+      }
+      if (saveStructureBtn) {
+        saveStructureBtn.addEventListener('click', function() {
+          const newStr = structureInput.value.trim();
+          const segRegex = /(\w+)\[(\d+)\]/g;
+          let match;
+          const newParts = [];
+          while ((match = segRegex.exec(newStr)) !== null) {
+            const segName = match[1];
+            const segLen = parseInt(match[2], 10);
+            if (isNaN(segLen) || segLen < 0) continue;
+            newParts.push({ name: segName, length: segLen });
+          }
+          // Extract leftover characters and validate: only hyphens and digits allowed
+          const leftover = newStr.replace(segRegex, '');
+          if (/[^0-9\-]/.test(leftover)) {
+            alert('Only hyphens and digits (e.g., 0) may separate segments.');
+            return;
+          }
+          if (newParts.length !== selectedTypes.length) {
+            alert('Structure does not match the selected reference tables.');
+            return;
+          }
+          for (let i = 0; i < newParts.length; i++) {
+            const expected = selectedTypes[i];
+            const expectedLabel = expected.startsWith('custom:') ? expected.substring('custom:'.length) : expected;
+            if (newParts[i].name !== expectedLabel) {
+              alert('Structure sequence must follow selected reference tables and names must match.');
+              return;
+            }
+          }
+          // Compute total length (segments + separators) and ensure <= 12
+          let totalLen = leftover.length;
+          newParts.forEach(p => { totalLen += p.length; });
+          if (totalLen > 12) {
+            alert('Total length must be 12 or less.');
+            return;
+          }
+          // Update structureParts lengths accordingly
+          for (let i = 0; i < structureParts.length; i++) {
+            structureParts[i].length = newParts[i].length;
+          }
+          // Update display and hide editor
+          document.getElementById('structureDisplay').textContent = newStr;
+          structureContainer.style.display = 'none';
+          // Helper: fetch abbreviation for given type and length
+          const getAbbr = (type, length) => {
+            let abbr = '';
+            if (type.startsWith('custom:')) {
+              const tblName = type.substring('custom:'.length);
+              const val = customTables[tblName];
+              if (val && val.combos) {
+                const combo = val.combos[0];
+                if (combo) abbr = combo.abbr;
+              } else if (Array.isArray(val) && val[0]) abbr = val[0].abbr;
+            } else if (type === 'brand' && brands[0]) abbr = brands[0].abbr;
+            else if (type === 'product' && products[0]) abbr = products[0].abbr;
+            else if (type === 'category' && categories[0]) abbr = categories[0].abbr;
+            else if (type === 'variant' && variants[0]) abbr = variants[0].abbr;
+            else if (type === 'size' && sizes[0]) abbr = sizes[0].abbr;
+            else if (type === 'customer' && customers[0]) abbr = customers[0].abbr;
+            else if (type === 'age' && ages[0]) abbr = ages[0].abbr;
+            else if (type === 'location' && locations[0]) abbr = locations[0].abbr;
+            return (abbr || '').substring(0, length);
+          };
+          // Replace each segment with corresponding abbreviation while preserving separators
+          let partIndex = 0;
+          const newSku = newStr.replace(segRegex, function(fullMatch, segName, segLen) {
+            const type = selectedTypes[partIndex];
+            const len = newParts[partIndex].length;
+            const abbr = getAbbr(type, len);
+            partIndex++;
+            return abbr;
+          });
+          const newLen = newSku.length;
+          // Build updated result display
+          let updatedHtml = '';
+          updatedHtml += '<p><strong>Sample SKU:</strong> ' + newSku + '</p>';
+          updatedHtml += '<p><strong>Length:</strong> ' + newLen + '</p>';
+          updatedHtml += '<p><strong>Structure:</strong> <span id="structureDisplay">' + newStr + '</span> <button type="button" id="editStructureBtn" style="margin-left:10px;">Edit</button></p>';
+          updatedHtml += '<div id="structureEditContainer" style="display:none; margin-top:5px;">';
+          updatedHtml += '<input type="text" id="structureInput" style="width:100%;" value="' + newStr + '" />';
+          updatedHtml += '<button type="button" id="saveStructureBtn" style="margin-top:5px;">Save Structure</button>';
+          updatedHtml += '</div>';
+          resultDiv.innerHTML = updatedHtml;
+          // Update sampleInfo for closure
+          sampleInfo.sku = newSku;
+          sampleInfo.length = newLen;
+          // Reattach edit/save handlers
+          const rebind = function() {
+            const edBtn = document.getElementById('editStructureBtn');
+            const structCont = document.getElementById('structureEditContainer');
+            const saveBtn2 = document.getElementById('saveStructureBtn');
+            if (edBtn) {
+              edBtn.addEventListener('click', function() {
+                if (sampleInfo.length > 12) {
+                  alert('Cannot edit structure: sample length exceeds 12 characters.');
+                  return;
+                }
+                structCont.style.display = (structCont.style.display === 'none' ? 'block' : 'none');
+              });
+            }
+            if (saveBtn2) {
+              saveBtn2.onclick = null;
+              saveBtn2.addEventListener('click', function() {
+                // trigger the original save handler again
+                saveStructureBtn.click();
+              });
+            }
+          };
+          rebind();
+        });
+      }
+    }
+
+    // Save the template
+    function saveTemplate() {
+      const nameInput = document.getElementById('templateName');
+      const resultDiv = document.getElementById('templateResult');
+      if (!nameInput) return;
+      const name = nameInput.value.trim();
+      const selectedTypes = selectedTemplateTables.slice();
+      if (!name) {
+        resultDiv.innerHTML = '<div class="message error">Please enter a template name.</div>';
+        return;
+      }
+      if (skuTemplates.some(tpl => tpl.name.toLowerCase() === name.toLowerCase())) {
+        resultDiv.innerHTML = '<div class="message error">A template with this name already exists.</div>';
+        return;
+      }
+      if (selectedTypes.length === 0) {
+        resultDiv.innerHTML = '<div class="message error">Please select at least one reference table.</div>';
+        return;
+      }
+      skuTemplates.push({ name: name, types: selectedTypes });
+      saveData();
+      renderTemplateList();
+      // Clear form and hide it
+      nameInput.value = '';
+      // Reset selected tables and UI
+      selectedTemplateTables = [];
+      renderSelectedTablesChips();
+      populateTemplateTablesSelect();
+      document.getElementById('templateResult').innerHTML = '';
+      document.getElementById('templateForm').style.display = 'none';
+      document.getElementById('saveTemplateContainer').style.display = 'none';
+    }
+
+    // Remove a template by index
+    function removeTemplate(index) {
+      skuTemplates.splice(index, 1);
+      saveData();
+      renderTemplateList();
+    }
+
+    // Setup events for template creation
+    function setupTemplateEvents() {
+      const createBtn = document.getElementById('createTemplateBtn');
+      if (createBtn) {
+        createBtn.addEventListener('click', function() {
+          // Always show the form when clicking create template
+          const form = document.getElementById('templateForm');
+          if (!form) return;
+          form.style.display = 'block';
+          // Reset selected tables
+          selectedTemplateTables = [];
+          renderSelectedTablesChips();
+          // Populate dropdown each time to reflect latest tables
+          populateTemplateTablesSelect();
+        });
+      }
+      const genBtn = document.getElementById('generateTemplateBtn');
+      if (genBtn) {
+        genBtn.addEventListener('click', generateTemplate);
+      }
+      const saveBtn = document.getElementById('saveTemplateBtn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', saveTemplate);
+      }
+      // When user selects a table in dropdown, add it automatically
+      const templateTablesSelect = document.getElementById('templateTablesSelect');
+      if (templateTablesSelect) {
+        templateTablesSelect.addEventListener('change', function() {
+          const value = templateTablesSelect.value;
+          if (!value) return;
+          // Only add if not already selected and no overlap
+          if (!selectedTemplateTables.includes(value)) {
+            if (!canAddTableToTemplate(value)) {
+              const resultDiv = document.getElementById('templateResult');
+              if (resultDiv) {
+                resultDiv.innerHTML = '<div class="message error">This selection overlaps with an existing table or combination.</div>';
+              }
+              // Reset selection to placeholder
+              templateTablesSelect.selectedIndex = 0;
+              return;
+            }
+            selectedTemplateTables.push(value);
+            // Reset select value to placeholder to show next time
+            templateTablesSelect.selectedIndex = 0;
+            renderSelectedTablesChips();
+            populateTemplateTablesSelect();
+          }
+        });
+      }
+      // Create combination table from current selection
+      const createCombBtn = document.getElementById('createCombinationFromTemplateBtn');
+      if (createCombBtn) {
+        createCombBtn.addEventListener('click', createCombinationFromSelected);
+      }
+    }
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      populateNewProductForm();
+      // Attach change handler to SKU template select to update visible fields
+      const skuTemplateSelect = document.getElementById('npSkuTemplate');
+      if (skuTemplateSelect) {
+        skuTemplateSelect.addEventListener('change', function() {
+          updateFieldVisibility();
+        });
+      }
+      // After populating form, set up dual list controls
+      setupDualLists();
+      renderProductMasterTable();
+      setupTabs();
+      // Render navigation and combination generator
+      renderRefNav();
+      renderCombinationGenerator();
+      // Set up add table button
+      const addTableBtn = document.getElementById('addTableBtn');
+      if (addTableBtn) {
+        addTableBtn.addEventListener('click', function() {
+          const input = document.getElementById('newTableName');
+          const name = input ? input.value.trim() : '';
+          if (name) {
+            addReferenceTable(name);
+            input.value = '';
+          }
+        });
+      }
+
+      // Render template list and set up template events
+      renderTemplateList();
+      setupTemplateEvents();
+      // Populate the template tables select and render chips for template form
+      populateTemplateTablesSelect();
+      renderSelectedTablesChips();
+    });
+  </script>
+</body>
+</html>
